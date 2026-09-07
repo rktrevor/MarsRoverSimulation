@@ -8,7 +8,7 @@ namespace MarsRoverSimulation.App.Interfaces
     internal interface ISimulationMainInterface
     {
         string Run(string inputText);
-        Position ParsePositionLine(string line)
-        string? NextNonEmpty(IEnumerator<string> enumerator)
+        Position ParsePositionLine(string line);
+        string? NextNonEmpty(IEnumerator<string> enumerator);
     }
 }
