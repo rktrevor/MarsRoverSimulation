@@ -5,10 +5,11 @@ using System.Text;
 
 namespace MarsRoverSimulation.App.Interfaces
 {
+    /// <summary>
+    /// Interface for the main simulation logic. It defines a method to run the simulation with a given robot and instructions.
+    /// </summary>
     internal interface ISimulationMainInterface
     {
-        string Run(string inputText);
-        Position ParsePositionLine(string line);
-        string? NextNonEmpty(IEnumerator<string> enumerator);
+        Robot Run(Robot robot, string instructions);
     }
 }

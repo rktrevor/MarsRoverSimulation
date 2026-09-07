@@ -5,12 +5,11 @@ using System.Text;
 namespace MarsRoverSimulation.App.Classes
 {
     /// <summary>
-    /// The bounded rectangular surface of Mars, with the lower-left corner
-    /// fixed at (0, 0). Tracks the "scent" left behind at grid points where
-    /// a robot has previously been lost.
+    /// The bounded rectangular grid. Also tracks the "scent" left behind by
+    /// robots that have fallen off the edge, keyed by the last grid point
+    /// they occupied before disappearing.
     /// </summary>
-    
-    internal class Grid
+    public class Grid
     {
         public int MaxX { get; }
         public int MaxY { get; }
@@ -23,11 +22,10 @@ namespace MarsRoverSimulation.App.Classes
             MaxY = maxY;
         }
 
-        public bool InBounds(int x, int y) =>
-            x >= 0 && x <= MaxX && y >= 0 && y <= MaxY;
+        public bool IsInBounds(int x, int y) => x >= 0 && x <= MaxX && y >= 0 && y <= MaxY;
 
-        public bool HasScent(int x, int y) => _scents.Contains((x, y));
+        public bool HasScentAt(int x, int y) => _scents.Contains((x, y));
 
-        public void LeaveScent(int x, int y) => _scents.Add((x, y));
+        public void LeaveScentAt(int x, int y) => _scents.Add((x, y));
     }
 }

@@ -14,73 +14,35 @@ namespace MarsRoverSimulation.App.Base
     /// 
     internal class SimulationMain : ISimulationMainInterface
     {
-        public string? NextNonEmpty(IEnumerator<string> enumerator)
+        private readonly Grid _grid;
+
+        public SimulationMain(Grid grid)
         {
-            while (enumerator.MoveNext())
-            {
-                if (!string.IsNullOrWhiteSpace(enumerator.Current))
-                {
-                    return enumerator.Current;
-                }
-            }
-            return null;
+            _grid = grid;
         }
 
-        public Position ParsePositionLine(string line)
+        public Robot Run(Robot robot, string instructions)
         {
-            var parts = line.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-            int x = int.Parse(parts[0]);
-            int y = int.Parse(parts[1]);
-            char orientation = parts[2][0];
-            return new Position(x, y, orientation);
-        }
-
-        public string Run(string inputText)
-        {
-            // Normalize line endings and split, keeping blank lines out of
-            // the way but preserving order of the meaningful ones.
-            var lines = inputText
-                .Replace("\r\n", "\n")
-                .Split('\n');
-
-            using var enumerator = ((IEnumerable<string>)lines).GetEnumerator();
-
-            string? gridLine = NextNonEmpty(enumerator);
-            if (gridLine is null)
+            foreach (char c in instructions)
             {
-                return string.Empty;
-            }
-
-            var gridParts = gridLine.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-            int maxX = int.Parse(gridParts[0]);
-            int maxY = int.Parse(gridParts[1]);
-            var grid = new Grid(maxX, maxY);
-
-            var results = new List<string>();
-
-            while (true)
-            {
-                string? positionLine = NextNonEmpty(enumerator);
-                if (positionLine is null)
+                if (robot.IsLost)
                 {
+                    // A lost robot is gone; nothing further can be done with it.
                     break;
                 }
 
-                string? instructionLine = NextNonEmpty(enumerator);
-                if (instructionLine is null)
+                if (!CommandFactory.TryCreate(c, out var command))
                 {
-                    // Malformed input (position with no instruction line) -
-                    // nothing more to process.
-                    break;
+                    // Unknown instruction letter - ignore it rather than
+                    // crash, so unrecognised future instructions degrade
+                    // gracefully.
+                    continue;
                 }
 
-                var position = ParsePositionLine(positionLine);
-                var robot = new Robot(grid, position);
-                robot.RunInstructions(instructionLine.Trim());
-                results.Add(robot.Report());
+                command.Execute(robot, _grid);
             }
 
-            return string.Join("\n", results);
+            return robot;
         }
     }
 }
